@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('stopwatch.jpg'); /* Ensure the image path is correct */
+            background-size: cover;
+            background-position: center;
+                    }
+        .stopwatch {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .time {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        .buttons button {
+            font-size: 1rem;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        #start { background-color: #28a745; }
+        #pause { background-color: #ffc107; }
+        #reset { background-color: #dc3545; }
+        #lap { background-color: #007bff; }
+        .laps {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .lap {
+            font-size: 1rem;
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <h1>Stopwatch</h1>
+        <div class="time" id="time-display">00:00:00.00</div>
+        <div class="buttons">
+            <button id="start" onclick="start()">Start</button>
+            <button id="pause" onclick="pause()">Pause</button>
+            <button id="reset" onclick="reset()">Reset</button>
+            <button id="lap" onclick="lap()">Lap</button>
+        </div>
+        <div class="laps" id="laps-container"></div>
+    </div>
+    <script>
+        let startTime;
+        let updatedTime;
+        let difference;
+        let tInterval;
+        let running = false;
+        let paused = false;
+        let savedTime = 0;
+
+        const timeDisplay = document.getElementById('time-display');
+        const lapsContainer = document.getElementById('laps-container');
+
+        function start() {
+            if (!running && !paused) {
+                startTime = new Date().getTime() - savedTime;
+                tInterval = setInterval(getShowTime, 10);
+                running = true;
+                paused = false;
+            }
+        }
+
+        function pause() {
+            if (running) {
+                savedTime = difference;
+                clearInterval(tInterval);
+                running = false;
+                paused = true;
+            }
+        }
+
+        function reset() {
+            clearInterval(tInterval);
+            savedTime = 0;
+            difference = 0;
+            running = false;
+            paused = false;
+            timeDisplay.innerHTML = '00:00:00.00';
+            lapsContainer.innerHTML = '';
+        }
+
+        function lap() {
+            if (running) {
+                const lapTime = formatTime(difference);
+                const lapElement = document.createElement('div');
+                lapElement.className = 'lap';
+                lapElement.innerText = `Lap ${lapsContainer.children.length + 1}: ${lapTime}`;
+                lapsContainer.appendChild(lapElement);
+            }
+        }
+
+        function getShowTime() {
+            updatedTime = new Date().getTime();
+            difference = updatedTime - startTime;
+            timeDisplay.innerHTML = formatTime(difference);
+        }
+
+        function formatTime(time) {
+            let milliseconds = Math.floor((time % 1000) / 10);
+            let seconds = Math.floor((time / 1000) % 60);
+            let minutes = Math.floor((time / (1000 * 60)) % 60);
+            let hours = Math.floor((time / (1000 * 60 * 60)) % 24);
+
+            return (
+                (hours < 10 ? '0' + hours : hours) + ':' +
+                (minutes < 10 ? '0' + minutes : minutes) + ':' +
+                (seconds < 10 ? '0' + seconds : seconds) + '.' +
+                (milliseconds < 10 ? '0' + milliseconds : milliseconds)
+            );
+        }
+    </script>
+</body>
+</html>
